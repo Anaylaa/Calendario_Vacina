@@ -18,7 +18,7 @@ public class Dose {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_dose")
-    private Long id;
+    private Integer id;
     @Column(name = "descricao_dose", length = 45, nullable = false)
     private String descricao;
     @Column(name = "idade_recomendada_aplicacao")
