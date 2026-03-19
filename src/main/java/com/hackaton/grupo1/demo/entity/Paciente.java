@@ -1,6 +1,8 @@
 package com.hackaton.grupo1.demo.entity;
 import com.hackaton.grupo1.demo.enums.Sexo;
 import java.io.Serializable;
+import java.time.LocalDate;
+import java.util.Objects;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
