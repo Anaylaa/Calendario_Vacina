@@ -14,7 +14,7 @@ public class Imunizacao implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_imunizacao")
-    private Long id;
+    private Integer id;
 
     @ManyToOne
     @JoinColumn(name = "id_paciente", nullable = false)
