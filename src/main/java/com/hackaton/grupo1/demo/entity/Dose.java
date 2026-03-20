@@ -14,10 +14,6 @@ public class Dose implements Serializable{
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_dose")
     private Integer id;
-<<<<<<< HEAD
-=======
-
->>>>>>> main
     @Column(name = "descricao_dose", length = 45, nullable = false)
     private String descricao;
 
