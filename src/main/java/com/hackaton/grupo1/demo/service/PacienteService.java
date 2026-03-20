@@ -12,14 +12,13 @@ import com.hackaton.grupo1.demo.entity.Paciente;
 import com.hackaton.grupo1.demo.repository.PacienteRepository;
 import java.lang.RuntimeException;
 
-
 @Service
 public class PacienteService {
 
     @Autowired
     private PacienteRepository repository;
 
-    private List<PacienteDTO> Listar(){
+    public List<PacienteDTO> listar(){
         return repository.findAll().stream().map(this::toDTO).collect(Collectors.toList());
     }
 
@@ -74,7 +73,3 @@ public class PacienteService {
     }
 
 }
-
-    
-
-
