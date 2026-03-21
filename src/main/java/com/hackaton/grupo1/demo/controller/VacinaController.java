@@ -1,7 +1,9 @@
 package com.hackaton.grupo1.demo.controller;
 
-import com.hackaton.grupo1.demo.entity.Vacina;
+import com.hackaton.grupo1.demo.controller.docs.VacinaControllerDocs;
+import com.hackaton.grupo1.demo.dto.VacinaDTO;
 import com.hackaton.grupo1.demo.service.VacinaService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -10,62 +12,36 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/vacinas")
-public class VacinaController {
+public class VacinaController implements VacinaControllerDocs {
 
-    private final VacinaService vacinaService;
+    @Autowired
+    private VacinaService vacinaService;
 
-    public VacinaController(VacinaService vacinaService) {
-        this.vacinaService = vacinaService;
-    }
-
-    // Listar todas as vacinas
-    @GetMapping
-    public ResponseEntity<List<Vacina>> getAllVacinas() {
-        List<Vacina> vacinas = vacinaService.listarTodas();
+    @GetMapping("/consultar")
+    public ResponseEntity<List<VacinaDTO>> listarTodas() {
+        List<VacinaDTO> vacinas = vacinaService.listarTodas();
         return ResponseEntity.ok(vacinas);
     }
 
-    // Buscar vacina por ID
-    @GetMapping("/{id}")
-    public ResponseEntity<Vacina> getVacinaById(@PathVariable Integer id) {
+    @GetMapping("/consultar/faixa_etaria/{faixa}")
+    public ResponseEntity<List<VacinaDTO>> listarPorFaixaEtaria(@PathVariable String faixa) {
         try {
-            Vacina vacina = vacinaService.buscarPorId(id);
-            return ResponseEntity.ok(vacina);
-        } catch (RuntimeException e) {
-            return ResponseEntity.notFound().build();
+            List<VacinaDTO> vacinas = vacinaService.listarPorFaixaEtaria(faixa);
+            return ResponseEntity.ok(vacinas);
+        } catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException("Faixa etária inválida. Use: CRIANÇA, ADOLESCENTE, ADULTO ou GESTANTE.");
         }
     }
 
-    // Criar nova vacina
-    @PostMapping
-    public ResponseEntity<Vacina> createVacina(@RequestBody Vacina vacina) {
-        try {
-            Vacina novaVacina = vacinaService.salvar(vacina);
-            return ResponseEntity.status(HttpStatus.CREATED).body(novaVacina);
-        } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().build();
-        }
+    @GetMapping("/consultar/idade_maior/{meses}")
+    public ResponseEntity<List<VacinaDTO>> listarPorIdadeMaior(@PathVariable int meses) {
+        List<VacinaDTO> vacinas = vacinaService.listarPorIdadeMaior(meses);
+        return ResponseEntity.ok(vacinas);
     }
 
-    // Atualizar vacina existente
-    @PutMapping("/{id}")
-    public ResponseEntity<Vacina> updateVacina(@PathVariable Integer id, @RequestBody Vacina vacinaAtualizada) {
-        try {
-            Vacina vacina = vacinaService.atualizar(id, vacinaAtualizada);
-            return ResponseEntity.ok(vacina);
-        } catch (RuntimeException e) {
-            return ResponseEntity.notFound().build();
-        }
-    }
-
-    // Deletar vacina
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteVacina(@PathVariable Integer id) {
-        try {
-            vacinaService.deletar(id);
-            return ResponseEntity.noContent().build();
-        } catch (RuntimeException e) {
-            return ResponseEntity.notFound().build();
-        }
+    @PostMapping("/cadastrar")
+    public ResponseEntity<VacinaDTO> cadastrar(@RequestBody VacinaDTO vacinaDTO) {
+        VacinaDTO novaVacina = vacinaService.cadastrar(vacinaDTO);
+        return ResponseEntity.status(HttpStatus.CREATED).body(novaVacina);
     }
 }

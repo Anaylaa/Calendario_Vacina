@@ -2,7 +2,12 @@ package com.hackaton.grupo1.demo.service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
+import com.hackaton.grupo1.demo.dto.VacinaDTO;
+import com.hackaton.grupo1.demo.enums.PublicoAlvo;
+import com.hackaton.grupo1.demo.exceptions.ResourceNotFoundException;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.hackaton.grupo1.demo.entity.Vacina;
@@ -11,52 +16,58 @@ import com.hackaton.grupo1.demo.repository.VacinaRepository;
 @Service
 public class VacinaService {
 
-    private final VacinaRepository vacinaRepository;
+    @Autowired
+    private VacinaRepository vacinaRepository;
 
-    public VacinaService(VacinaRepository vacinaRepository) {
-        this.vacinaRepository = vacinaRepository;
+
+    public List<VacinaDTO> listarTodas() {
+        return vacinaRepository.findAll()
+                .stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
     }
 
-    // 🔹 Criar vacina
-    public Vacina salvar(Vacina vacina) {
-
-        // validação simples (evitar nome duplicado)
-        Optional<Vacina> vacinaExistente = vacinaRepository.findByNome(vacina.getNome());
-        if (vacinaExistente.isPresent()) {
-            throw new RuntimeException("Já existe uma vacina com esse nome");
-        }
-
-        return vacinaRepository.save(vacina);
+    public List<VacinaDTO> listarPorFaixaEtaria(String faixa) {
+        PublicoAlvo publico = PublicoAlvo.valueOf(faixa.toUpperCase());
+        return vacinaRepository.findByPublicoAlvo(publico)
+                .stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
     }
 
-    // 🔹 Listar todas
-    public List<Vacina> listarTodas() {
-        return vacinaRepository.findAll();
+    public List<VacinaDTO> listarPorIdadeMaior(int meses) {
+        return vacinaRepository.findByLimiteAplicacaoGreaterThan(meses)
+                .stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
     }
 
-    // 🔹 Buscar por ID
-    public Vacina buscarPorId(Integer id) {
-        return vacinaRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Vacina não encontrada com ID: " + id));
+    public VacinaDTO cadastrar(VacinaDTO dto) {
+        Vacina vacina = convertToEntity(dto);
+
+        Vacina salva = vacinaRepository.save(vacina);
+
+        return convertToDTO(salva);
     }
 
-    // 🔹 Atualizar vacina
-    public Vacina atualizar(Integer id, Vacina vacinaAtualizada) {
+    private Vacina convertToEntity(VacinaDTO dto) {
+        Vacina vacina = new Vacina();
 
-        Vacina vacina = buscarPorId(id);
+        vacina.setNome(dto.getNome());
+        vacina.setDescricao(dto.getDescricao());
+        vacina.setLimiteAplicacao(dto.getLimiteAplicacao());
+        vacina.setPublicoAlvo(dto.getPublicoAlvo());
 
-        vacina.setNome(vacinaAtualizada.getNome());
-        vacina.setDescricao(vacinaAtualizada.getDescricao());
-        vacina.setLimiteAplicacao(vacinaAtualizada.getLimiteAplicacao());
-        vacina.setPublicoAlvo(vacinaAtualizada.getPublicoAlvo());
-
-        return vacinaRepository.save(vacina);
+        return vacina;
     }
 
-    // 🔹 Deletar vacina
-    public void deletar(Integer id) {
-
-        Vacina vacina = buscarPorId(id);
-        vacinaRepository.delete(vacina);
+    private VacinaDTO convertToDTO(Vacina vacina) {
+        return new VacinaDTO(
+                vacina.getId(),
+                vacina.getNome(),
+                vacina.getDescricao(),
+                vacina.getLimiteAplicacao(),
+                vacina.getPublicoAlvo()
+        );
     }
 }

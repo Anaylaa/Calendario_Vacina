@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
+import com.hackaton.grupo1.demo.dto.ImunizacaoDTO;
 import com.hackaton.grupo1.demo.entity.Dose;
 import com.hackaton.grupo1.demo.entity.Paciente;
 import com.hackaton.grupo1.demo.exceptions.ResourceNotFoundException;
@@ -28,32 +29,35 @@ public class ImunizacaoService {
     @Autowired
     private ImunizacaoRepository imunizacaoRepository;
 
-    public Imunizacao salvar(Imunizacao imunizacao) {
-        Paciente paciente = pacienteRepository.findById(imunizacao.getPaciente().getId())
+    public Imunizacao salvar(ImunizacaoDTO dto) {
+        Paciente paciente = pacienteRepository.findById(dto.getIdPaciente())
                 .orElseThrow(() -> new ResourceNotFoundException("Paciente não encontrado."));
 
-        Dose dose = doseRepository.findById(imunizacao.getDose().getId())
+        Dose dose = doseRepository.findById(dto.getIdDose())
                 .orElseThrow(() -> new ResourceNotFoundException("Dose não encontrada."));
+
+        Imunizacao imunizacao = new Imunizacao();
+        imunizacao.setDataAplicacao(dto.getDataAplicacao());
+        imunizacao.setFabricante(dto.getFabricante());
+        imunizacao.setLote(dto.getLote());
+        imunizacao.setLocalAplicacao(dto.getLocalAplicacao());
+        imunizacao.setProfissionalAplicador(dto.getProfissionalAplicador());
         imunizacao.setPaciente(paciente);
         imunizacao.setDose(dose);
 
         return imunizacaoRepository.save(imunizacao);
     }
 
-    public Imunizacao alterar(Integer id, Imunizacao dadosAtualizados) {
+    public Imunizacao alterar(Integer id, ImunizacaoDTO dto) {
         Imunizacao imunizacao = imunizacaoRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Imunização não encontrada."));
 
-        if (dadosAtualizados.getDataAplicacao() != null)
-            imunizacao.setDataAplicacao(dadosAtualizados.getDataAplicacao());
-        if (dadosAtualizados.getFabricante() != null)
-            imunizacao.setFabricante(dadosAtualizados.getFabricante());
-        if (dadosAtualizados.getLote() != null)
-            imunizacao.setLote(dadosAtualizados.getLote());
-        if (dadosAtualizados.getLocalAplicacao() != null)
-            imunizacao.setLocalAplicacao(dadosAtualizados.getLocalAplicacao());
-        if (dadosAtualizados.getProfissionalAplicador() != null)
-            imunizacao.setProfissionalAplicador(dadosAtualizados.getProfissionalAplicador());
+        // Atualiza apenas os campos permitidos
+        if (dto.getDataAplicacao() != null) imunizacao.setDataAplicacao(dto.getDataAplicacao());
+        if (dto.getFabricante() != null) imunizacao.setFabricante(dto.getFabricante());
+        if (dto.getLote() != null) imunizacao.setLote(dto.getLote());
+        if (dto.getLocalAplicacao() != null) imunizacao.setLocalAplicacao(dto.getLocalAplicacao());
+        if (dto.getProfissionalAplicador() != null) imunizacao.setProfissionalAplicador(dto.getProfissionalAplicador());
 
         return imunizacaoRepository.save(imunizacao);
     }

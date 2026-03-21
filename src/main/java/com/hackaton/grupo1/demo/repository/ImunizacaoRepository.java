@@ -1,6 +1,8 @@
 package com.hackaton.grupo1.demo.repository;
 
+import com.hackaton.grupo1.demo.entity.Vacina;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import com.hackaton.grupo1.demo.entity.Imunizacao;
@@ -19,4 +21,8 @@ public interface ImunizacaoRepository extends JpaRepository<Imunizacao, Integer>
     void deleteByPaciente_Id(Integer idPaciente);
 
     long countByPaciente_Id(Integer idPaciente);
+
+    long countByPacienteId(Integer idPaciente);
+
+
 }

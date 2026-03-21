@@ -39,8 +39,14 @@ public class Imunizacao implements Serializable {
     @Column(name = "profissional_aplicador", length = 45)
     private String profissionalAplicador;
 
-    // GETTERS E SETTERS
 
+    public Integer getId() {
+        return id;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
+    }
 
     public Paciente getPaciente() {
         return paciente;
