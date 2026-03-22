@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.hackaton.grupo1.demo.controller.docs.PacienteControllerDocs;
 import com.hackaton.grupo1.demo.dto.PacienteDTO;
+import com.hackaton.grupo1.demo.exceptions.ResourceNotFoundException;
 import com.hackaton.grupo1.demo.service.PacienteService;
 
 @RestController
@@ -51,9 +52,14 @@ public class PacienteController implements PacienteControllerDocs{
     }
 
     @DeleteMapping("/excluir/{id}")
-    public ResponseEntity<String> apagarPacienteID(@PathVariable Integer id){
-            pacienteService.deletar(id);
-        return ResponseEntity.status(HttpStatus.OK).body("Paciente não encontrado! ID: "+id);
+    public ResponseEntity<Void> deletarPaciente(@PathVariable("id") Integer id) {
+
+    if (pacienteService.findById(id) == null) {
+        throw new ResourceNotFoundException("Paciente não encontrado com o ID: " + id);
+    }
+
+    pacienteService.deletar(id);
+    return ResponseEntity.noContent().build(); // 204
     }
     
 }

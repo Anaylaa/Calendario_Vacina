@@ -69,5 +69,5 @@ public interface PacienteControllerDocs {
                     @ApiResponse(description = "Internal Server Error", responseCode = "500", content = @Content)
             }
     )
-    ResponseEntity<?> apagarPacienteID(@PathVariable("id") Integer id);
+    ResponseEntity<Void> deletarPaciente(@PathVariable("id") Integer id);
 }
