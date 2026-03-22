@@ -7,6 +7,7 @@ import java.util.Optional;
 import com.hackaton.grupo1.demo.dto.ImunizacaoDTO;
 import com.hackaton.grupo1.demo.entity.Dose;
 import com.hackaton.grupo1.demo.entity.Paciente;
+import com.hackaton.grupo1.demo.exceptions.BadRequestException;
 import com.hackaton.grupo1.demo.exceptions.ResourceNotFoundException;
 import com.hackaton.grupo1.demo.repository.DoseRepository;
 import com.hackaton.grupo1.demo.repository.PacienteRepository;
@@ -35,6 +36,21 @@ public class ImunizacaoService {
 
         Dose dose = doseRepository.findById(dto.getIdDose())
                 .orElseThrow(() -> new ResourceNotFoundException("Dose não encontrada."));
+
+        if (imunizacaoRepository.existsByPaciente_IdAndDose_Id(dto.getIdPaciente(), dto.getIdDose())) {
+            throw new BadRequestException("O paciente já possui registro para esta dose específica.");
+        }
+
+        if (dto.getDataAplicacao() != null) {
+            if (dto.getDataAplicacao().isAfter(LocalDate.now())) {
+                throw new BadRequestException("A data de aplicação da vacina não pode ser no futuro.");
+            }
+            if (dto.getDataAplicacao().isBefore(paciente.getData_nascimento())) {
+                throw new BadRequestException("A data de aplicação não pode ser anterior à data de nascimento do paciente.");
+            }
+        }
+
+
 
         Imunizacao imunizacao = new Imunizacao();
         imunizacao.setDataAplicacao(dto.getDataAplicacao());

@@ -24,5 +24,6 @@ public interface ImunizacaoRepository extends JpaRepository<Imunizacao, Integer>
 
     long countByPacienteId(Integer idPaciente);
 
+    boolean existsByPaciente_IdAndDose_Id(Integer idPaciente, Integer idDose);
 
 }

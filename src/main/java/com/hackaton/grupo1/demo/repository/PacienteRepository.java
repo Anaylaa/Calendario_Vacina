@@ -5,7 +5,11 @@ import org.springframework.stereotype.Repository;
 
 import com.hackaton.grupo1.demo.entity.Paciente;
 
+import java.util.Optional;
+
 @Repository
 public interface PacienteRepository extends JpaRepository<Paciente, Integer> {
     Boolean existsByCpf(String cpf);
+
+    Optional<Paciente> findByCpf(String cpf);
 }

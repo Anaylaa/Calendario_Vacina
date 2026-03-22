@@ -1,5 +1,6 @@
 package com.hackaton.grupo1.demo.repository;
 
+import com.hackaton.grupo1.demo.entity.Dose;
 import com.hackaton.grupo1.demo.enums.PublicoAlvo;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -19,7 +20,7 @@ public interface VacinaRepository extends JpaRepository<Vacina, Integer> {
 
     long countByLimiteAplicacaoGreaterThan(int meses);
 
-    @Query("SELECT v FROM Vacina v WHERE v.id NOT IN " +
-            "(SELECT i.dose.vacina.id FROM Imunizacao i WHERE i.paciente.id = :idPaciente)")
-    List<Vacina> findVacinasNaoAplicadas(Integer idPaciente);
+    @Query("SELECT d FROM Dose d WHERE d.id NOT IN " +
+            "(SELECT i.dose.id FROM Imunizacao i WHERE i.paciente.id = :idPaciente)")
+    List<Dose> findDosesNaoAplicadas(Integer idPaciente);
 }

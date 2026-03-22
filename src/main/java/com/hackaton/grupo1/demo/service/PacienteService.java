@@ -1,8 +1,11 @@
 package com.hackaton.grupo1.demo.service;
 
+import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
+import com.hackaton.grupo1.demo.exceptions.BadRequestException;
 import com.hackaton.grupo1.demo.exceptions.ResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -31,18 +34,36 @@ public class PacienteService {
     }
 
     public PacienteDTO criarPaciente(PacienteDTO pacienteDTO){
-        if(pacienteDTO.getCpf() != null && repository.existsByCpf(pacienteDTO.getCpf())){
-            throw new RuntimeException("cpf já cadastrado");
+        // Valida se a data de nascimento está no futuro
+        if (pacienteDTO.getData_nascimento() != null && pacienteDTO.getData_nascimento().isAfter(LocalDate.now())) {
+            throw new BadRequestException("A data de nascimento não pode ser no futuro.");
         }
+
+        if(pacienteDTO.getCpf() != null && repository.existsByCpf(pacienteDTO.getCpf())){
+            // Substituímos o RuntimeException genérico por BadRequestException
+            throw new BadRequestException("CPF já cadastrado.");
+        }
+
         Paciente paciente = toEntity(pacienteDTO);
         return toDTO(repository.save(paciente));
     }
 
     public PacienteDTO atualizarPaciente(int id, PacienteDTO pacienteDTO){
-    
         Paciente paciente = repository.findById(id).orElseThrow(()
-            -> new ResourceNotFoundException("paciente não encontrado")
+                -> new ResourceNotFoundException("Paciente não encontrado")
         );
+
+        if (pacienteDTO.getData_nascimento() != null && pacienteDTO.getData_nascimento().isAfter(LocalDate.now())) {
+            throw new BadRequestException("A data de nascimento não pode ser no futuro.");
+        }
+
+        if (pacienteDTO.getCpf() != null) {
+            Optional<Paciente> pacienteExistente = repository.findByCpf(pacienteDTO.getCpf());
+            if (pacienteExistente.isPresent() && !pacienteExistente.get().getId().equals(id)) {
+                throw new BadRequestException("O CPF informado já está sendo utilizado por outro paciente.");
+            }
+        }
+
         paciente.setNome(pacienteDTO.getNome());
         paciente.setCpf(pacienteDTO.getCpf());
         paciente.setSexo(pacienteDTO.getSexo());
