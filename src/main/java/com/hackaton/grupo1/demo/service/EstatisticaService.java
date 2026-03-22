@@ -37,7 +37,7 @@ public class EstatisticaService {
         int idadeMeses = calcularIdadeEmMeses(paciente.getData_nascimento());
         List<Vacina> naoTomadas = vacinaRepository.findVacinasNaoAplicadas(idPaciente);
         return naoTomadas.stream()
-                .filter(v -> v.getLimiteAplicacao() < idadeMeses)
+                .filter(v -> v.getLimiteAplicacao() != null && v.getLimiteAplicacao() < idadeMeses)
                 .count();
     }
 
@@ -48,7 +48,7 @@ public class EstatisticaService {
 
         List<Vacina> naoTomadas = vacinaRepository.findVacinasNaoAplicadas(idPaciente);
         return naoTomadas.stream()
-                .filter(v -> v.getLimiteAplicacao() == proximoMes)
+                .filter(v -> v.getLimiteAplicacao() != null && v.getLimiteAplicacao() == proximoMes)
                 .count();
     }
 
