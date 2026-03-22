@@ -2,6 +2,7 @@ package com.hackaton.grupo1.demo.service;
 
 import com.hackaton.grupo1.demo.entity.Paciente;
 import com.hackaton.grupo1.demo.entity.Vacina;
+import com.hackaton.grupo1.demo.exceptions.BadRequestException;
 import com.hackaton.grupo1.demo.exceptions.ResourceNotFoundException;
 import com.hackaton.grupo1.demo.repository.ImunizacaoRepository;
 import com.hackaton.grupo1.demo.repository.PacienteRepository;
@@ -29,7 +30,17 @@ public class EstatisticaService {
     }
 
     public long contarVacinasAcimaDaIdade(int meses) {
-        return vacinaRepository.countByLimiteAplicacaoGreaterThan(meses);
+        if (meses < 0) {
+            throw new BadRequestException("O número de meses não pode ser negativo.");
+        }
+
+        long count = vacinaRepository.countVacinasAcimaIdadeOuSemLimite(meses);
+
+        if (count == 0) {
+            throw new ResourceNotFoundException("Nenhuma vacina encontrada para a idade de " + meses + " meses.");
+        }
+
+        return count;
     }
 
     public long contarVacinasAtrasadas(Integer idPaciente) {
@@ -37,7 +48,7 @@ public class EstatisticaService {
         int idadeMeses = calcularIdadeEmMeses(paciente.getData_nascimento());
         List<Vacina> naoTomadas = vacinaRepository.findVacinasNaoAplicadas(idPaciente);
         return naoTomadas.stream()
-                .filter(v -> v.getLimiteAplicacao() < idadeMeses)
+                .filter(v -> v.getLimiteAplicacao() != null && v.getLimiteAplicacao() < idadeMeses)
                 .count();
     }
 
@@ -48,7 +59,7 @@ public class EstatisticaService {
 
         List<Vacina> naoTomadas = vacinaRepository.findVacinasNaoAplicadas(idPaciente);
         return naoTomadas.stream()
-                .filter(v -> v.getLimiteAplicacao() == proximoMes)
+                .filter(v -> v.getLimiteAplicacao() != null && v.getLimiteAplicacao() == proximoMes)
                 .count();
     }
 

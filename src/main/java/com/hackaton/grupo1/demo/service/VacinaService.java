@@ -6,6 +6,7 @@ import java.util.stream.Collectors;
 
 import com.hackaton.grupo1.demo.dto.VacinaDTO;
 import com.hackaton.grupo1.demo.enums.PublicoAlvo;
+import com.hackaton.grupo1.demo.exceptions.BadRequestException;
 import com.hackaton.grupo1.demo.exceptions.ResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -36,8 +37,17 @@ public class VacinaService {
     }
 
     public List<VacinaDTO> listarPorIdadeMaior(int meses) {
-        return vacinaRepository.findByLimiteAplicacaoGreaterThan(meses)
-                .stream()
+        if (meses < 0) {
+            throw new BadRequestException("O número de meses não pode ser negativo.");
+        }
+
+        List<Vacina> vacinas = vacinaRepository.findVacinasAcimaIdadeOuSemLimite(meses);
+
+        if (vacinas.isEmpty()) {
+            throw new ResourceNotFoundException("Nenhuma vacina encontrada para a idade de " + meses + " meses.");
+        }
+
+        return vacinas.stream()
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
     }
